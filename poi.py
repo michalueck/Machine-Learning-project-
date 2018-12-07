@@ -348,6 +348,19 @@ for key, clf in clfs.items():
 
 
 ### Tuning the classifier 
+from sklearn.model_selection import StratifiedShuffleSplit
+X = np.array(features)
+y = np.array(labels)
+sss = StratifiedShuffleSplit(n_splits=5, test_size=0.5, random_state=0)
+sss.get_n_splits(X, y)
+
+#print(sss)       
+
+for train_index, test_index in sss.split(X, y):
+   print("TRAIN:", train_index, "TEST:", test_index)
+   X_train, X_test = X[train_index], X[test_index]
+   y_train, y_test = y[train_index], y[test_index]
+
 from sklearn.model_selection import train_test_split
 X =features
 y =labels
