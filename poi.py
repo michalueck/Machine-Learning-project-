@@ -165,6 +165,7 @@ from sklearn.cross_validation import KFold
 import matplotlib.pyplot as plt
 
 # Perform feature selection
+predictors = features_list
 selector = SelectKBest(f_classif, k=5)
 selector.fit(df4[predictors],df4["poi"])
 
@@ -235,7 +236,7 @@ importances = clf.feature_importances_
 import numpy as np
 indices = np.argsort(importances)[::-1]
 print ('Feature Ranking: ')
-for i in range(23):
+for i in range(7):
     print ("{} feature {} ({})".format(i+1,features_list[i+1],importances[indices[i]]))
     
     # Get names of indexes for which column salary of total payments is 0
