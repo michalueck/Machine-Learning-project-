@@ -5,13 +5,14 @@ import pickle
 import pandas as pd 
 sys.path.append("../tools/")
 
-import pandas as pd
 import matplotlib.pyplot as plt
-import seaborn as sns
+#import seaborn as sns
 import numpy as np
 
 from feature_format import featureFormat, targetFeatureSplit
 from tester import dump_classifier_and_data
+
+
 
 pd.set_option('display.max_columns', None)
 
@@ -73,7 +74,6 @@ df4 = df3.apply(lambda x: abs(x))
 
 df4.describe()
 
-import matplotlib.pyplot as plt
 
 plt.scatter(df3['salary'], df3['total_payments'])
 plt.show()
@@ -150,6 +150,8 @@ features_list = ['poi','salary', 'to_messages','deferral_payments','total_paymen
 ### Store to my_dataset for easy export below.
 #my_dataset = data_dict
 my_dataset=df4.to_dict('index')
+
+
 
 ## Extract features and labels from dataset for local testing
 data = featureFormat(my_dataset, features_list, sort_keys = True)
@@ -380,10 +382,11 @@ pipeline = Pipeline([
 # pipeline.set_params(knn__n_neighbors = 1)
 
 from sklearn.model_selection import GridSearchCV
+from sklearn.model_selection import cross_val_score
 
 clf = GridSearchCV(pipeline, param_grid = {
-    "knn__n_neighbors": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
-})
+    "knn__n_neighbors": range(1,10)
+}, scoring = 'recall_macro')
 clf.fit(X_train, y_train)
 
 print("the best parameter choice is:", clf.best_params_)
@@ -393,41 +396,18 @@ print("score:",clf.score(X_validation, y_validation))
 print ("the best score is: ")
 print(clf.best_score_)
 
-#my_dataset
-#X =features
-#y =labels
-
-from sklearn.neighbors import KNeighborsClassifier
-#
-clf = KNeighborsClassifier(n_neighbors=3)
-clf.fit(X_train, y_train)
-
-print("KNN score:", clf.score(X_validation, y_validation))
-
-from sklearn.neighbors import KNeighborsClassifier
-
-clf = KNeighborsClassifier(n_neighbors=5)
-clf.fit(X_train, y_train)
-
-print("KNN score:", clf.score(X_validation, y_validation))
-
-from sklearn.neighbors import KNeighborsClassifier
-
-clf = KNeighborsClassifier(n_neighbors=9)
-clf.fit(X_train, y_train)
-
-print("KNN score:", clf.score(X_validation, y_validation))
 
 ### Testing KNN
 data = featureFormat(my_dataset, features_list, sort_keys = True)
 labels, features = targetFeatureSplit(data)
 
-from sklearn.cross_validation import train_test_split
-features_train, features_test, labels_train, labels_test = \
-    train_test_split(features, labels, test_size=0.3, random_state=42)
+#from sklearn.cross_validation import train_test_split
+#features_train, features_test, labels_train, labels_test = \
+ #   train_test_split(features, labels, test_size=0.3, random_state=42)
 
 
-clf = KNeighborsClassifier()
+clf = clf.best_estimator_
+
 clf.fit(X_train, y_train)
 from time import time
 t1 = time()
@@ -453,16 +433,6 @@ from sklearn.model_selection import train_test_split
 X =features
 y =labels
 
-X_train, X_test, y_train, y_test = train_test_split(X, y, random_state = 0, test_size = 0.25)
-
-
-from sklearn.neighbors import KNeighborsClassifier
-
-clf = KNeighborsClassifier(n_neighbors = 7)
-clf.fit(X_train, y_train)
-
-print("the score is:", clf.score(X_test, y_test))
-
 y_test_pred = clf.predict(X_test)
 
 from sklearn.metrics import precision_score, recall_score
@@ -484,7 +454,7 @@ pickle.dump(data_dict, open("my_dataset.pkl", "wb") )
 pickle.dump(features_list, open("my_feature_list.pkl", "wb") )
 
 
-
+#dump_classifier_and_data (clf, my_dataset, features_list)
 
 
 
