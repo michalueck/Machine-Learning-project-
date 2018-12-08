@@ -73,8 +73,7 @@ x = (df5[:]['salary_of_total_stock_value'])
 y= (df5[:]['salary_of_total_payments'])
 
 
-      
-       #complete list of my features before feature selection 
+#complete list of my features before feature selection 
 features_list = ['poi','salary', 'to_messages','deferral_payments','total_payments', 'loan_advances','bonus',  'restricted_stock_deferred', 'deferred_income', 'total_stock_value', 'expenses','from_poi_to_this_person', 'exercised_stock_options', 'from_messages','other', 'from_this_person_to_poi', 'long_term_incentive', 'shared_receipt_with_poi', 'restricted_stock', 'director_fees', 'salary_of_total_payments', 'salary_of_total_stock_value', 'f_from', 'f_to'] 
 
 
@@ -98,6 +97,7 @@ features_list =['poi', 'salary', 'bonus', 'from_poi_to_this_person', 'from_this_
 import os
 os.chdir("./")
 import feature_format
+import numpy as np
 
 data = feature_format.featureFormat (my_dataset, features_list, sort_keys = True)
 ## Extract features and labels from dataset for local testing
@@ -108,7 +108,6 @@ y =labels
 
 # Feature importances By SelectKBest
 
-import numpy as np
 from sklearn.feature_selection import SelectKBest, f_classif
 from sklearn.cross_validation import KFold
 #%matplotlib inline
@@ -184,8 +183,8 @@ importances = clf.feature_importances_
 import numpy as np
 indices = np.argsort(importances)[::-1]
 print ('Feature Ranking: ')
-for i in range(23):
-    print ("{} feature {} ({})".format(i+1,features_list[i+1],importances[indices[i]]))
+#for i in range(7):
+    #print ("{} feature {} ({})".format(i+1,features_list[i+1],importances[indices[i]]))
 
 # Get names of indexes for which column salary of total payments is 0
 indexNames = df4[ df4['salary_of_total_payments'] == 0.0 ].index
@@ -247,7 +246,7 @@ clf = GaussianNB()
 
 from sklearn.linear_model import LogisticRegression
 from sklearn.svm import SVC
-from sklearn.neural_network import MLPClassifier
+#from sklearn.neural_network import MLPClassifier
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.ensemble import GradientBoostingClassifier
@@ -255,7 +254,7 @@ from sklearn.ensemble import GradientBoostingClassifier
 clfs = {
     "logistic regression": LogisticRegression(),
     "svc": SVC(),
-    "neural network": MLPClassifier(),
+    #"neural network": MLPClassifier(),
     "decision tree": DecisionTreeClassifier(),
     "random forest": RandomForestClassifier(),
     "gradient boosting": GradientBoostingClassifier()
@@ -271,6 +270,20 @@ for key, clf in clfs.items():
 ### function. Because of the small size of the dataset, the script uses
 ### stratified shuffle split cross validation. For more info: 
 ### http://scikit-learn.org/stable/modules/generated/sklearn.cross_validation.StratifiedShuffleSplit.html
+
+from sklearn.model_selection import StratifiedShuffleSplit
+X = np.array(features)
+y = np.array(labels)
+sss = StratifiedShuffleSplit(n_splits=5, test_size=0.5, random_state=0)
+sss.get_n_splits(X, y)
+
+#print(sss)       
+
+for train_index, test_index in sss.split(X, y):
+   print("TRAIN:", train_index, "TEST:", test_index)
+   X_train, X_test = X[train_index], X[test_index]
+   y_train, y_test = y[train_index], y[test_index]
+
 from sklearn.pipeline import Pipeline
 
 from sklearn.preprocessing import StandardScaler
@@ -326,6 +339,6 @@ features_train, features_test, labels_train, labels_test = \
 
 dump_classifier_and_data(clf, my_dataset, features_list)
 
-pickle.dump(clf, open("my_classifier.pkl", "wb") )
-pickle.dump(data_dict, open("my_dataset.pkl", "wb") )
-pickle.dump(features_list, open("my_feature_list.pkl", "wb") )
+pickle.dump(clf, open("my_classifier.pkl", "w") )
+pickle.dump(data_dict, open("my_dataset.pkl", "w") )
+pickle.dump(features_list, open("my_feature_list.pkl", "w") )
